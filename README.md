@@ -1,16 +1,61 @@
-# teste_edusoft
+# Teste Prático Flutter - Edusoft
 
-A new Flutter project.
+Aplicação desenvolvida em Flutter como parte do processo seletivo para desenvolvedores Flutter na Edusoft. O projeto consome a API pública do IBGE (Censo de Nomes), apresentando o ranking de frequência e os detalhes históricos por década de cada nome.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 📱 Funcionalidades
 
-A few resources to get you started if this is your first Flutter project:
+- **Listagem de Nomes / Ranking**: Consumo do endpoint REST do Censo IBGE e exibição dos dados formatados em cards Material Design responsivos.
+- **Navegação & Detalhes**: Ao clicar em um item, o usuário é direcionado via sistema de rotas nomeadas para a tela de detalhes com informações históricas por período/década.
+- **Gerenciamento de Estado**: Implementado com o padrão **BLoC** (Business Logic Component), garantindo separação clara entre eventos, estados e UI.
+- **Arquitetura em Camadas**: Separação organizada entre camadas de Dados (`Data`), Regra de Negócio (`Logic`) e Apresentação (`Presentation`).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Tecnologias e Pacotes Utilizados
+
+- **Flutter / Dart** (Flutter 3.16.4+)
+- **flutter_bloc**: Gerenciamento de estado previsível e desacoplado
+- **http**: Cliente HTTP para requisições REST
+- **Material Design**: Componentes visuais adaptáveis ao layout do dispositivo
+
+---
+
+## 🌐 Endpoints Consumidos
+
+1. **Ranking Geral**: `https://servicodados.ibge.gov.br/api/v2/censos/nomes/ranking`
+2. **Detalhes do Nome**: `https://servicodados.ibge.gov.br/api/v2/censos/nomes/{nome}`
+
+---
+
+## ⏱️ Tempo de Desenvolvimento e Dificuldades
+
+- **Tempo gasto**: Aproximadamente **4 horas**.
+- **Dificuldades encontradas**:
+  - **Gerenciamento de Estado com BLoC**: Por ter sido o primeiro projeto utilizando essa biblioteca, a curva inicial de aprendizado para a separação precisa de Eventos, Estados e fluxo de Streams exigiu maior dedicação e estudo conceitual durante o desenvolvimento.
+  - **Interpretação da Paginação**: O endpoint público do IBGE não disponibiliza parâmetros para paginação no lado do servidor (como `limit` ou `offset`). Com isso, a implementação focou na renderização fluida da lista com rolagem e na experiência de navegação entre as páginas do fluxo da aplicação.
+
+---
+
+## 🚀 Como Executar o Projeto
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/gabrieldickmannschneider/teste_edusoft.git
+   ```
+
+2. Acesse a pasta do projeto:
+   ```bash
+   cd teste_edusoft
+   ```
+
+3. Obtenha as dependências:
+   ```bash
+   flutter pub get
+   ```
+
+4. Execute o projeto no emulador ou dispositivo conectado:
+   ```bash
+   flutter run
+   ```
