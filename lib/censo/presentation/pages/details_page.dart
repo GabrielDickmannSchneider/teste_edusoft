@@ -1,7 +1,13 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:teste_edusoft/censo/data/models/censo_details_model.dart';
-import 'package:teste_edusoft/censo/data/repository/censo_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:teste_edusoft/censo/presentation/widget/details_widget/details_header_widget.dart';
+import 'package:teste_edusoft/censo/presentation/widget/details_widget/historico_chart_widget.dart';
+import 'package:teste_edusoft/censo/presentation/widget/ranking_widget/feedback_views.dart';
+import '../../commons/app_colors.dart';
+import '../../data/repository/censo_repository.dart';
+import '../../logic/censo_details/censo_detail_bloc.dart';
+import '../../logic/censo_details/censo_detail_event.dart';
+import '../../logic/censo_details/censo_detail_state.dart';
 
 class DetailsPage extends StatelessWidget {
   final String nome;
@@ -10,79 +16,66 @@ class DetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Frequência: $nome')),
-      body: FutureBuilder<List<CensoDetailsModel>>(
-        future: CensoRepository().getDetails(nome),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nenhum dado histórico encontrado.'));
-          }
+    return BlocProvider<CensoDetailBloc>(
+      create: (context) => CensoDetailBloc(repo: CensoRepository())
+        ..add(FetchDetailsEvent(nome: nome)),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: Text(
+            'Detalhes: $nome',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.background,
+          elevation: 0,
+        ),
+        body: BlocBuilder<CensoDetailBloc, CensoDetailState>(
+          builder: (context, state) {
+            if (state is CensoDetailLoading) {
+              return const LoadingView();
+            }
 
-          final list = snapshot.data!;
-          final spots = list.asMap().entries.map((e) {
-            return FlSpot(e.key.toDouble(), e.value.frequencia!.toDouble());
-          }).toList();
+            if (state is CensoDetailError) {
+              return ErrorView(
+                message: state.message,
+                onRetry: () {
+                  context
+                      .read<CensoDetailBloc>()
+                      .add(FetchDetailsEvent(nome: nome));
+                },
+              );
+            }
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Evolução de registros por década',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: LineChart(
-                    LineChartData(
-                      gridData: const FlGridData(show: true),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 32,
-                            getTitlesWidget: (value, meta) {
-                              final index = value.toInt();
-                              if (index >= 0 && index < list.length) {
-                                final label = list[index].periodo?.replaceAll(RegExp(r'[\[\]]'), '');
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    label!.length >= 4 ? label.substring(0, 4) : label,
-                                    style: const TextStyle(fontSize: 10),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      borderData: FlBorderData(show: true),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: spots,
-                          isCurved: true,
-                          color: Theme.of(context).primaryColor,
-                          barWidth: 3,
-                          dotData: const FlDotData(show: true),
-                        ),
-                      ],
+            if (state is CensoDetailLoaded) {
+              if (state.historico.isEmpty) {
+                return const EmptyView();
+              }
+
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    DetailsHeaderWidget(
+                      nome: state.nome,
+                      totalRegistros: state.totalOcorrencias,
                     ),
-                  ),
+                    const SizedBox(height: 16),
+
+                    Expanded(
+                      child: HistoricoChartWidget(
+                        historico: state.historico,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        ),
       ),
     );
   }

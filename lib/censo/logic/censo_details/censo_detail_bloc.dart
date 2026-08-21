@@ -13,9 +13,9 @@ class CensoDetailBloc extends Bloc<CensoDetailEvent, CensoDetailState> {
     emit(CensoDetailLoading());
     try {
       final periodos = await repo.getDetails(event.nome);
-      emit(CensoDetailSucess(periodos: periodos));
+      emit(CensoDetailLoaded(historico: periodos, nome: event.nome));
     } catch (e) {
-      emit(CensoDetailFailure(message: e.toString()));
+      emit(CensoDetailError(e.toString()));
     }
   }
 }

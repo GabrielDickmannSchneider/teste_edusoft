@@ -1,5 +1,4 @@
-
-import 'package:teste_edusoft/censo/data/models/censo_details_model.dart';
+import '../../data/models/censo_details_model.dart';
 
 abstract class CensoDetailState {}
 
@@ -7,14 +6,20 @@ class CensoDetailInitial extends CensoDetailState {}
 
 class CensoDetailLoading extends CensoDetailState {}
 
-class CensoDetailSucess extends CensoDetailState {
-  final List<CensoDetailsModel> periodos;
+class CensoDetailLoaded extends CensoDetailState {
+  final String nome;
+  final List<CensoDetailsModel> historico;
 
-  CensoDetailSucess({required this.periodos});
+  CensoDetailLoaded({
+    required this.nome,
+    required this.historico,
+  });
+
+  int get totalOcorrencias =>
+      historico.fold(0, (soma, item) => soma + item.frequencia!);
 }
 
-class CensoDetailFailure extends CensoDetailState {
+class CensoDetailError extends CensoDetailState {
   final String message;
-
-  CensoDetailFailure({required this.message});
+  CensoDetailError(this.message);
 }
