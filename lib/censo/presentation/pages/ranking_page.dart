@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:teste_edusoft/censo/commons/app_colors.dart';
 import 'package:teste_edusoft/censo/data/repository/censo_repository.dart';
 import 'package:teste_edusoft/censo/logic/censo_ranking/censo_bloc.dart';
 import 'package:teste_edusoft/censo/logic/censo_ranking/censo_event.dart';
@@ -49,7 +50,7 @@ class _RankingPageState extends State<RankingPage> {
     return BlocProvider.value(
       value: _censoBloc,
       child: Scaffold(
-        appBar: AppBar(title: Text('Censo'),),
+        appBar: AppBar(title: Text('Censo')),
         body: BlocBuilder<CensoBloc, CensoState>(
           builder: (context, state) {
             if (state is CensoSucess) {
@@ -60,21 +61,56 @@ class _RankingPageState extends State<RankingPage> {
                   final censo = state.ranking[index];
                   return InkWell(
                     onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.details, arguments: censo.nome);
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.details,
+                        arguments: censo.nome,
+                      );
                     },
-                    child: Card(
-                      elevation: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('# ${censo.ranking}'),
-                          Text('Nome: ${censo.nome}'),
-                          Text('Frequência: ${censo.frequencia}'),
-                        ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8, right: 8),
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: index < 3
+                                ? AppColors.gold.withOpacity(0.15)
+                                : AppColors.surfaceVariant,
+                            child: Text(
+                              '#${censo.ranking}',
+                              style: TextStyle(
+                                color: index < 3
+                                    ? AppColors.warning
+                                    : AppColors.textSecondary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            censo.nome,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            'Frequência: ${censo.frequencia}',
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
                       ),
                     ),
                   );
-                }
+                },
               );
             } else if (state is CensoLoading) {
               return Center(child: CircularProgressIndicator());
@@ -88,16 +124,16 @@ class _RankingPageState extends State<RankingPage> {
                       ElevatedButton(
                         onPressed: () {
                           _censoBloc.add(FetchRankingEvent());
-                        }, 
-                        child: Text('Tentar Novamente')
-                      )
+                        },
+                        child: Text('Tentar Novamente'),
+                      ),
                     ],
                   ),
                 ),
               );
             }
             return Container();
-          }
+          },
         ),
       ),
     );

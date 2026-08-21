@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:teste_edusoft/censo/data/repository/censo_repository.dart';
 import 'package:teste_edusoft/censo/logic/censo_details/censo_detail_bloc.dart';
@@ -50,7 +49,7 @@ class _DetailsPageState extends State<DetailsPage> {
     return BlocProvider.value(
       value: _censoDetailsBloc,
       child: Scaffold(
-        appBar: AppBar(title: Text('Censo Detalhe'),),
+        appBar: AppBar(title: Text('Detalhes do Censo'),),
         body: BlocBuilder<CensoDetailBloc, CensoDetailState>(
           builder: (context, state) {
             if (state is CensoDetailSucess) {
@@ -59,14 +58,20 @@ class _DetailsPageState extends State<DetailsPage> {
                 itemCount: state.periodos.length,
                 itemBuilder: (context, index) {
                   final censo = state.periodos[index];
-                  return Card(
-                    elevation: 4,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Período: ${censo.periodo}'),
-                        Text('Frequência: ${censo.frequencia}'),
-                      ],
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 8),
+                    child: Card(
+                      elevation: 4,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Período: ${censo.periodo}'),
+                            Text('Frequência: ${censo.frequencia}'),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 }
