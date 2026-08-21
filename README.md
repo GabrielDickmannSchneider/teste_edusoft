@@ -31,10 +31,10 @@ Aplicação desenvolvida em Flutter como parte do processo seletivo para desenvo
 
 ## ⏱️ Tempo de Desenvolvimento e Dificuldades
 
-- **Tempo gasto**: Aproximadamente **4 horas**.
+- **Tempo gasto**: Aproximadamente **5-6 horas**.
 - **Dificuldades encontradas**:
   - **Gerenciamento de Estado com BLoC**: Por ter sido o primeiro projeto utilizando essa biblioteca, a curva inicial de aprendizado para a separação precisa de Eventos, Estados e fluxo de Streams exigiu maior dedicação e estudo conceitual durante o desenvolvimento.
-  - **Interpretação da Paginação**: O endpoint público do IBGE não disponibiliza parâmetros para paginação no lado do servidor (como `limit` ou `offset`). Com isso, a implementação focou na renderização fluida da lista com rolagem e na experiência de navegação entre as páginas do fluxo da aplicação.
+  - **Interpretação da Paginação**: O endpoint público do IBGE não disponibiliza parâmetros para paginação no lado do servidor (como `limit` ou `offset`). Para contornar essa restrição e atender aos requisitos de paginação, a solução foi desenvolver uma **paginação local em memória no BLoC**, dividindo a resposta em blocos de 10 em 10 itens e permitindo a navegação instantânea entre páginas sem chamadas extras de rede.
 
 ---
 
