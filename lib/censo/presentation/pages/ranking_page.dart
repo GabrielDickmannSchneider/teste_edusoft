@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:teste_edusoft/censo/commons/app_colors.dart';
+import 'package:teste_edusoft/censo/commons/rank_colors.dart';
 import 'package:teste_edusoft/censo/data/repository/censo_repository.dart';
 import 'package:teste_edusoft/censo/logic/censo_ranking/censo_bloc.dart';
 import 'package:teste_edusoft/censo/logic/censo_ranking/censo_event.dart';
@@ -59,6 +60,7 @@ class _RankingPageState extends State<RankingPage> {
                 itemCount: state.ranking.length,
                 itemBuilder: (context, index) {
                   final censo = state.ranking[index];
+                  final rankColors = RankColors().getRankColors(index);
                   return InkWell(
                     onTap: () {
                       Navigator.pushNamed(
@@ -76,15 +78,11 @@ class _RankingPageState extends State<RankingPage> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: index < 3
-                                ? AppColors.gold.withOpacity(0.15)
-                                : AppColors.surfaceVariant,
+                            backgroundColor: rankColors.$1,
                             child: Text(
                               '#${censo.ranking}',
                               style: TextStyle(
-                                color: index < 3
-                                    ? AppColors.warning
-                                    : AppColors.textSecondary,
+                                color: rankColors.$2,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
