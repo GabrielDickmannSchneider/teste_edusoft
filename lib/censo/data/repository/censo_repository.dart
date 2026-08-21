@@ -5,14 +5,20 @@ import 'package:teste_edusoft/censo/data/models/censo_details_model.dart';
 import 'package:teste_edusoft/censo/data/models/censo_nome_model.dart';
 
 class CensoRepository {
-  static const String baseUrl = 'https://servicodados.ibge.gov.br/api/v2/censos/nomes';
+  static const String baseUrl =
+      'https://servicodados.ibge.gov.br/api/v2/censos/nomes';
 
-  Future<List<CensoNomeModel>> getRanking({String? sexo, String? localidade}) async {
+  Future<List<CensoNomeModel>> getRanking({
+    String? sexo,
+    String? localidade,
+  }) async {
     final Map<String, String> queryParams = {};
     if (sexo != null && sexo.isNotEmpty) queryParams['sexo'] = sexo;
     if (localidade != null && localidade.isNotEmpty) queryParams['localidade'] = localidade;
 
-    final url = Uri.parse('$baseUrl/ranking').replace(queryParameters: queryParams.isEmpty ? null : queryParams);
+    final url = Uri.parse(
+      '$baseUrl/ranking',
+    ).replace(queryParameters: queryParams.isEmpty ? null : queryParams);
     return await http.get(url).then((response) {
       if (response.statusCode == 200) {
         List<dynamic> result = jsonDecode(response.body);
@@ -23,8 +29,18 @@ class CensoRepository {
     });
   }
 
-  Future<List<CensoDetailsModel>> getDetails(String nome) async {
-    final url = Uri.parse('$baseUrl/${Uri.encodeComponent(nome)}');
+  Future<List<CensoDetailsModel>> getDetails(
+    String nome, {
+    String? sexo,
+    String? localidade,
+  }) async {
+    final Map<String, String> queryParams = {};
+    if (sexo != null && sexo.isNotEmpty) queryParams['sexo'] = sexo;
+    if (localidade != null && localidade.isNotEmpty) queryParams['localidade'] = localidade;
+
+    final url = Uri.parse('$baseUrl/${Uri.encodeComponent(nome)}').replace(
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
     return await http.get(url).then((response) {
       if (response.statusCode == 200) {
         List<dynamic> result = jsonDecode(response.body);

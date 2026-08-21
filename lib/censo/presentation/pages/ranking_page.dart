@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:teste_edusoft/censo/commons/app_colors.dart';
+import 'package:teste_edusoft/censo/logic/censo_ranking/censo_bloc.dart';
+import 'package:teste_edusoft/censo/logic/censo_ranking/censo_event.dart';
+import 'package:teste_edusoft/censo/logic/censo_ranking/censo_state.dart';
 import 'package:teste_edusoft/censo/presentation/widget/ranking_widget/feedback_views.dart';
 import 'package:teste_edusoft/censo/presentation/widget/ranking_widget/filter_section_widget.dart';
 import 'package:teste_edusoft/censo/presentation/widget/ranking_widget/pagination_bar_widget.dart';
 import 'package:teste_edusoft/censo/presentation/widget/ranking_widget/ranking_list_widget.dart';
-import '../../commons/app_colors.dart';
-import '../../logic/censo_ranking/censo_bloc.dart';
-import '../../logic/censo_ranking/censo_event.dart';
-import '../../logic/censo_ranking/censo_state.dart';
 
 class RankingPage extends StatefulWidget {
   const RankingPage({super.key});
@@ -28,11 +28,8 @@ class _RankingPageState extends State<RankingPage> {
 
   void _carregarRanking() {
     context.read<CensoBloc>().add(
-          FetchRankingEvent(
-            sexo: _selectedSexo,
-            localidade: _selectedUf,
-          ),
-        );
+      FetchRankingEvent(sexo: _selectedSexo, localidade: _selectedUf),
+    );
   }
 
   @override
@@ -51,7 +48,6 @@ class _RankingPageState extends State<RankingPage> {
       ),
       body: Column(
         children: [
-          // 1. Barra de Filtros
           FilterSectionWidget(
             selectedSexo: _selectedSexo,
             selectedUf: _selectedUf,
@@ -89,15 +85,18 @@ class _RankingPageState extends State<RankingPage> {
                       Expanded(
                         child: RankingListWidget(
                           nomes: state.nomesPaginados,
+                          sexo: state.sexo,
+                          localidade: state.localidade,
                         ),
                       ),
 
-                      // Barra inferior de navegação
                       PaginationBarWidget(
                         currentPage: state.currentPage,
                         totalPages: state.totalPages,
                         onPageChanged: (novaPagina) {
-                          context.read<CensoBloc>().add(ChangePageEvent(novaPagina));
+                          context.read<CensoBloc>().add(
+                            ChangePageEvent(novaPagina),
+                          );
                         },
                       ),
                     ],

@@ -12,7 +12,7 @@ class CensoDetailBloc extends Bloc<CensoDetailEvent, CensoDetailState> {
   Future<void> _onFetchDetails(FetchDetailsEvent event, Emitter<CensoDetailState> emit) async {
     emit(CensoDetailLoading());
     try {
-      final periodos = await repo.getDetails(event.nome);
+      final periodos = await repo.getDetails(event.nome, localidade: event.localidade, sexo: event.sexo);
       emit(CensoDetailLoaded(historico: periodos, nome: event.nome));
     } catch (e) {
       emit(CensoDetailError(e.toString()));

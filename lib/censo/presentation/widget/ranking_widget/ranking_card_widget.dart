@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
-import '../../../commons/app_colors.dart';
-import '../../../commons/rank_colors.dart';
-import '../../../data/models/censo_nome_model.dart';
-import '../../pages/details_page.dart';
+import 'package:teste_edusoft/censo/commons/app_colors.dart';
+import 'package:teste_edusoft/censo/commons/rank_colors.dart';
+import 'package:teste_edusoft/censo/data/models/censo_nome_model.dart';
+import 'package:teste_edusoft/censo/presentation/pages/details_page.dart';
 
 class RankingCardWidget extends StatelessWidget {
   final CensoNomeModel item;
+  final String? sexo;
+  final String? localidade;
 
-  const RankingCardWidget({super.key, required this.item});
+  const RankingCardWidget({
+    super.key,
+    required this.item,
+    this.sexo,
+    this.localidade,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +65,11 @@ class RankingCardWidget extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DetailsPage(nome: item.nome),
+              builder: (context) => DetailsPage(
+                nome: item.nome,
+                sexo: sexo,
+                localidade: localidade,
+              ),
             ),
           );
         },
