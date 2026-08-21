@@ -1,104 +1,88 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:teste_edusoft/censo/data/models/censo_details_model.dart';
 import 'package:teste_edusoft/censo/data/repository/censo_repository.dart';
-import 'package:teste_edusoft/censo/logic/censo_details/censo_detail_bloc.dart';
-import 'package:teste_edusoft/censo/logic/censo_details/censo_detail_event.dart';
-import 'package:teste_edusoft/censo/logic/censo_details/censo_detail_state.dart';
 
-class DetailsPage extends StatefulWidget {
-  final CensoRepository repo;
+class DetailsPage extends StatelessWidget {
   final String nome;
-  const DetailsPage({super.key, required this.repo, required this.nome});
 
-  @override
-  State<DetailsPage> createState() => _DetailsPageState();
-}
-
-class _DetailsPageState extends State<DetailsPage> {
-  late final ScrollController _scrollController;
-  late final CensoDetailBloc _censoDetailsBloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-    _censoDetailsBloc = CensoDetailBloc(repo: widget.repo)..add(FetchDetailsEvent(nome: widget.nome));
-  }
-
-  void _onScroll() {
-    if (_isBottom) _censoDetailsBloc.add(FetchDetailsEvent(nome: widget.nome));
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll - 250);
-  }
-
-  @override
-  void dispose() {
-    _censoDetailsBloc.close();
-    _scrollController.dispose();
-    super.dispose();
-  }
+  const DetailsPage({super.key, required this.nome});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _censoDetailsBloc,
-      child: Scaffold(
-        appBar: AppBar(title: Text('Detalhes do Censo'),),
-        body: BlocBuilder<CensoDetailBloc, CensoDetailState>(
-          builder: (context, state) {
-            if (state is CensoDetailSucess) {
-              return ListView.builder(
-                controller: _scrollController,
-                itemCount: state.periodos.length,
-                itemBuilder: (context, index) {
-                  final censo = state.periodos[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    child: Card(
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Período: ${censo.periodo}'),
-                            Text('Frequência: ${censo.frequencia}'),
-                          ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Frequência: $nome')),
+      body: FutureBuilder<List<CensoDetailsModel>>(
+        future: CensoRepository().getDetails(nome),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Nenhum dado histórico encontrado.'));
+          }
+
+          final list = snapshot.data!;
+          final spots = list.asMap().entries.map((e) {
+            return FlSpot(e.key.toDouble(), e.value.frequencia!.toDouble());
+          }).toList();
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Evolução de registros por década',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Expanded(
+                  child: LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: true),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 32,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              if (index >= 0 && index < list.length) {
+                                final label = list[index].periodo?.replaceAll(RegExp(r'[\[\]]'), '');
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    label!.length >= 4 ? label.substring(0, 4) : label,
+                                    style: const TextStyle(fontSize: 10),
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
                         ),
+                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
+                      borderData: FlBorderData(show: true),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: spots,
+                          isCurved: true,
+                          color: Theme.of(context).primaryColor,
+                          barWidth: 3,
+                          dotData: const FlDotData(show: true),
+                        ),
+                      ],
                     ),
-                  );
-                }
-              );
-            } else if (state is CensoDetailLoading) {
-              return Center(child: CircularProgressIndicator());
-            } else if (state is CensoDetailFailure) {
-              return Center(
-                child: Card(
-                  elevation: 4,
-                  child: Column(
-                    children: [
-                      Text(state.message),
-                      ElevatedButton(
-                        onPressed: () {
-                          _censoDetailsBloc.add(FetchDetailsEvent(nome: widget.nome));
-                        }, 
-                        child: Text('Tentar Novamente')
-                      )
-                    ],
                   ),
                 ),
-              );
-            }
-            return Container();
-          }
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
