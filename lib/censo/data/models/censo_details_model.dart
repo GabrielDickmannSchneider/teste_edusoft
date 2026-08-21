@@ -12,7 +12,7 @@ class CensoDetailsModel {
 
   factory CensoDetailsModel.fromJson(Map<String, dynamic> json) {
     return CensoDetailsModel(
-      periodo: json[kPeriodo].replaceAll('[','').replaceAll(']','').replaceAll(',',' até '),
+      periodo: json[kPeriodo],
       frequencia: json[kFrequencia]
     );
   }
